@@ -1,0 +1,17 @@
+build/
+*.o
+*.a
+*.so
+*.dylib
+compile_commands.json
+CMakeUserPresets.json
+imgui.ini
+*.wav
+agent.txt
+.specify/
+.vscode/
+.idea/
+*.swp
+*~
+.agents/
+.opencode/
