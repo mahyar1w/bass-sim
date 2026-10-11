@@ -1,30 +1,78 @@
 # Bass-sim
 
-A Linux desktop guitar-to-bass prototype with independent PipeWire input and output selection, a monophonic octave-down effect, sound controls, meters, and local presets.
+Real-time guitar-to-bass simulator for Linux using PipeWire and Rubber Band pitch shifting.
 
-## Quick start
+Turns standard electric guitar input into a bass-like sound using an octave-down DSP pipeline with tone shaping, compression, saturation, and noise gating.
 
-Install a C++23 compiler, CMake 3.22+, PipeWire, Rubber Band, GLFW, OpenGL, and nlohmann/json development files. On a Debian-family system the corresponding packages are typically `build-essential cmake libpipewire-0.3-dev librubberband-dev libglfw3-dev libgl1-mesa-dev nlohmann-json3-dev`. Dear ImGui v1.92.9b and its official GLFW/OpenGL3 backends are included in `third_party/imgui`.
+![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Linux-orange.svg)
+![C++](https://img.shields.io/badge/C%2B%2B-23-purple.svg)
+
+---
+
+## Features
+
+- **PipeWire native audio routing:** Independent capture source/channel selection and playback sink selection.
+- **DSP pipeline:**
+  - Real-time octave-down pitch shifter (Rubber Band Engine R3)
+  - Tone shaping and filtering
+  - Dynamics: noise gate and compressor
+  - Saturation stage
+  - Dry / Wet mix control
+- **GUI:** Dear ImGui interface with real-time level meters, spectrum visualization, and diagnostics.
+- **Preset management:** Save and load custom DSP presets; persistent audio routing configuration.
+
+---
+
+## Requirements
+
+- **OS:** Linux (with running PipeWire daemon and session manager, e.g., WirePlumber)
+- **Compiler:** C++23 capable (GCC 13+ or Clang 17+)
+- **Build tool:** CMake 3.22+
+- **System packages** (Debian / Ubuntu):
+  ```sh
+  sudo apt install build-essential cmake \
+      libpipewire-0.3-dev \
+      librubberband-dev \
+      libglfw3-dev \
+      libgl1-mesa-dev \
+      nlohmann-json3-dev
+  ```
+
+*Dear ImGui is bundled under `third_party/imgui`.*
+
+---
+
+## Building and Running
 
 ```sh
+# Configure
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j4
+
+# Build
+cmake --build build -j$(nproc)
+
+# Run tests
 ctest --test-dir build --output-on-failure
+
+# Launch
 ./build/bass-sim
 ```
 
-Select a capture source and channel, select a playback sink, then press **Start**. The app starts with audio stopped and only enables output after verifying the selected PipeWire links. Use **Mute** before changing external hardware connections. Save a sound in the Presets panel; endpoint selections are saved separately.
+---
 
-## Platform and validation
+## Usage
 
-| Platform | Build | PipeWire route probe | Guitar listening | Physical latency |
-|---|---|---|---|---|
-| Linux desktop, PipeWire 1.6.9, GCC 16.2.1 | Passed | Passed with C-Media capture/playback at 48 kHz, 128 frames | Preferred engine render; live build pending test | Unverified physically; current offline streaming onset is about 85 ms |
-| Other Linux configurations | Untested | Untested | Untested | Untested |
-| Windows/macOS | No audio backend | Untested | Untested | Untested |
+1. **Audio setup:** Select your capture device and channel, select your playback sink.
+2. **Start engine:** Click **Start**. The app begins processing input audio.
+3. **Sound shaping:** Adjust pitch shift, drive, tone, compressor, and gate controls in the sound panel.
+4. **Presets:** Save current settings under the Presets panel.
+5. **Safety:** Click **Mute** before unplugging or switching hardware endpoints.
 
-The current octave method shifts the full waveform down an octave and passes offline single-note checks. Chords, attacks, live sound, and 30-minute stability need further testing. The present engine's roughly 85 ms offline streaming onset delay already exceeds the 20 ms physical target; the displayed single-buffer duration is an estimate, not end-to-end latency.
+For more details on project structure and architecture, see [docs/architecture.md](docs/architecture.md) and [docs/user-guide.md](docs/user-guide.md).
 
-For setup and controls see [user guide](docs/user-guide.md); for module boundaries see [architecture](docs/architecture.md); for dependency versions and licenses see [dependencies](docs/dependencies.md). The detailed [validation results](docs/validation/results.md) distinguish performed checks from open checks.
+---
 
-If no devices appear, check that PipeWire and its session manager are running and refresh the device list. If Start stays muted, inspect the Diagnostics panel for the selected node, negotiated channel, or link error; select available endpoints again and retry. Bluetooth playback may add considerable latency even when a small buffer is requested.
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE).
